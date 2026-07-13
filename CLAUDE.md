@@ -93,8 +93,17 @@ context unless you pass `--no-default-features`.
   `requires-python` in `pyproject.toml`. One wheel per platform covers
   every supported Python version; don't drop `abi3-pyXXX` without also
   widening the release matrix for per-version wheels.
-- Keep the `version` field in `Cargo.toml` and `pyproject.toml` in sync.
-  They aren't derived from each other.
+- `pyproject.toml` declares `version` as `dynamic`; maturin sources it from
+  `Cargo.toml`'s `[package].version` at build time. Don't add a static
+  `version` back to `[project]` — that overrides the dynamic source.
+  `Cargo.toml`'s checked-in version is just a local/dev placeholder;
+  `release.yml` overwrites it from the git tag before building a tagged
+  release (see Releasing below), so there's no manual bump step.
+  `Cargo.lock`'s own `rddsketch` entry will therefore also lag behind
+  (still showing the placeholder) — that's fine, not a bug: `cargo build`
+  auto-syncs a lockfile's own-package version to match `Cargo.toml` with
+  no `--locked` flag in play here, so it self-corrects during the release
+  build without needing a commit back to the repo.
 - `to_bytes()`/`from_bytes()` are exactly `sketches_ddsketch`'s
   Java-compatible encoding (`to_java_bytes`/`from_java_bytes`), unmodified
   — bytes produced by `to_bytes()` are portable to any standard DDSketch
@@ -118,6 +127,14 @@ manylinux), Windows (x64), macOS (x86_64/aarch64), plus an sdist.
   build to TestPyPI as a dry run.
 - Pushing a tag matching `v*` (e.g. `v0.1.0`) publishes to real PyPI.
 
+The version comes from the git tag, not a checked-in file (the
+maturin/PyO3 equivalent of `hatch-vcs`, which only works with the
+`hatchling` build backend and doesn't apply here). Each build job's first
+step rewrites `Cargo.toml`'s `version` from `github.ref_name` (stripping
+the `v` prefix) before running `maturin-action`; it's a no-op — Cargo.toml
+keeps its checked-in placeholder — on non-tag runs like `workflow_dispatch`.
+`pyproject.toml`'s `dynamic = ["version"]` then has maturin pick that up.
+
 Both publish jobs use PyPI Trusted Publishing (OIDC) via
 `pypa/gh-action-pypi-publish`, not a stored API token. Before either can
 succeed, a trusted publisher must be configured on the PyPI/TestPyPI side
@@ -127,6 +144,6 @@ GitHub Actions publisher, pointing at owner `f4hy`, repo `rddsketch`,
 workflow `release.yml`, and environment `pypi` (or `testpypi`). Neither is
 configured yet, so neither publish job will succeed until that's done.
 
-Before tagging a real release: bump `version` in both `Cargo.toml` and
-`pyproject.toml`, and confirm a TestPyPI dry run installs and imports
+No manual version bump needed before tagging — just push `vX.Y.Z`. Do
+confirm a TestPyPI dry run (`workflow_dispatch`) installs and imports
 cleanly first.

@@ -17,6 +17,19 @@ jobs:
         target: [x86_64, aarch64]
     steps:
       - uses: actions/checkout@v4
+      - name: Set crate version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          python3 -c "
+          import os, re, pathlib
+          version = os.environ['VERSION'].removeprefix('v')
+          path = pathlib.Path('Cargo.toml')
+          text = re.sub(r'(?m)^version = \".*\"', f'version = \"{version}\"', path.read_text(), count=1)
+          path.write_text(text)
+          "
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
@@ -35,6 +48,19 @@ jobs:
         target: [x64]
     steps:
       - uses: actions/checkout@v4
+      - name: Set crate version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          python3 -c "
+          import os, re, pathlib
+          version = os.environ['VERSION'].removeprefix('v')
+          path = pathlib.Path('Cargo.toml')
+          text = re.sub(r'(?m)^version = \".*\"', f'version = \"{version}\"', path.read_text(), count=1)
+          path.write_text(text)
+          "
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -56,6 +82,19 @@ jobs:
         target: [x86_64, aarch64]
     steps:
       - uses: actions/checkout@v4
+      - name: Set crate version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          python3 -c "
+          import os, re, pathlib
+          version = os.environ['VERSION'].removeprefix('v')
+          path = pathlib.Path('Cargo.toml')
+          text = re.sub(r'(?m)^version = \".*\"', f'version = \"{version}\"', path.read_text(), count=1)
+          path.write_text(text)
+          "
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
@@ -70,6 +109,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set crate version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          python3 -c "
+          import os, re, pathlib
+          version = os.environ['VERSION'].removeprefix('v')
+          path = pathlib.Path('Cargo.toml')
+          text = re.sub(r'(?m)^version = \".*\"', f'version = \"{version}\"', path.read_text(), count=1)
+          path.write_text(text)
+          "
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
