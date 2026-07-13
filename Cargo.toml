@@ -1,0 +1,29 @@
+[package]
+name = "rddsketch"
+version = "0.1.0"
+edition = "2021"
+description = "Rust-powered DDSketch for Python (PyO3)"
+license = "MIT"
+repository = "https://github.com/f4hy/rddsketch"
+
+[lib]
+name = "_rddsketch"
+crate-type = ["cdylib", "rlib"]
+
+# `extension-module` links against libpython and breaks `cargo test` (no
+# libpython to link against outside a Python process). Gate it behind a
+# feature that's on by default (so `maturin develop`/`maturin build` just
+# work) but can be turned off for plain `cargo test --no-default-features`.
+[features]
+default = ["extension-module"]
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+# abi3-py311 builds against the stable ABI (matches requires-python in
+# pyproject.toml): one wheel per platform covers every Python >= 3.11
+# instead of needing a build per interpreter version.
+pyo3 = { version = "0.29", features = ["abi3-py311"] }
+# Does the actual algorithm: a Rust port of DataDog's Go/Java DDSketch,
+# dense collapsing-store bins (matches LogCollapsingLowestDenseDDSketch),
+# plus a Java-compatible binary encoding we reuse for to_bytes/from_bytes.
+sketches-ddsketch = "0.4"
