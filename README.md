@@ -1,5 +1,7 @@
 # rddsketch
 
+[![PyPI](https://img.shields.io/pypi/v/rddsketch)](https://pypi.org/project/rddsketch/)
+
 Python bindings, via [PyO3](https://pyo3.rs), for
 [`sketches-ddsketch`](https://github.com/mheffner/rust-sketches-ddsketch) —
 a Rust port of DataDog's Go/Java [DDSketch](https://arxiv.org/pdf/1908.10693.pdf)
